@@ -26,8 +26,9 @@ int main(int argc, char *argv[]) {
   Entanglement entanglement(pars.L_,pars.n_eig_,pars.eig_keep_);
   std::string model = "ising";
   H.Ising(pars.h_);
-  
-  entanglement.ComputeEntanglementSpectrum(H);
+ 
+  entanglement.ComputeGreensFunction(H);
+  entanglement.ComputeEntanglementSpectrum();
   entanglement.Measure();
 
 

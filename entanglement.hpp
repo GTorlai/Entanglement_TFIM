@@ -31,7 +31,10 @@ class Entanglement{
   Eigen::MatrixXd Gamma_;
   Eigen::MatrixXd Pi_;
   Eigen::VectorXd Energy_;
- 
+
+  Eigen::MatrixXd C_;
+  Eigen::MatrixXd F_;
+
   std::vector<double> ES_;
   double VN_;
   double SG_;
@@ -44,9 +47,31 @@ public:
   }
 
 
+  void ComputeGreensFunction(const Hamiltonian &H) {
+    
+    Eigen::MatrixXd Gamma;
+    Eigen::MatrixXd Pi;
+    Eigen::VectorXd Energy;
+ 
+    Gamma.setZero(L_,L_);
+    Pi.setZero(L_,L_);
+    Energy.setZero(L_);
+    C_.setZero(L_,L_);
+    F_.setZero(L_,L_);
+    
+    Eigen::JacobiSVD<Eigen::MatrixXd> E(H.A_+H.B_, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    
+    Gamma_  =   0.5 *(E.matrixV().transpose()-E.matrixU().transpose());
+    Pi_     =   0.5 *(E.matrixV().transpose()+E.matrixU().transpose());
+    Energy_ = E.singularValues();
+    
+    C_ = 0.25 * (E.matrixV()-E.matrixU())*(E.matrixV().transpose()-E.matrixU().transpose());
+    F_ = 0.25 * (E.matrixV()-E.matrixU())*(E.matrixV().transpose()+E.matrixU().transpose());
+
+  }
 
  
-  void ComputeEntanglementSpectrum(const Hamiltonian &H) {
+  void ComputeEntanglementSpectrum() {
     
     double Norm=0;
     double epsilon=0.000000000000001;
@@ -61,30 +86,15 @@ public:
     std::vector<double> lambda;
     lambda.assign(bound_,0.0);
  
-    Gamma_.setZero(L_,L_);
-    Pi_.setZero(L_,L_);
-    Energy_.setZero(L_);
-
-    Eigen::MatrixXd C_tot(L_,L_);
-    Eigen::MatrixXd F_tot(L_,L_);
     Eigen::MatrixXd C_sub(L_/2,L_/2);
     Eigen::MatrixXd F_sub(L_/2,L_/2);
     
     Eigen::MatrixXd temp(L_/2,L_/2);
    
     std::vector<double> spectrum;
-     
-    Eigen::JacobiSVD<Eigen::MatrixXd> E(H.A_+H.B_, Eigen::ComputeFullU | Eigen::ComputeFullV);
     
-    Gamma_  =   0.5 *(E.matrixV().transpose()-E.matrixU().transpose());
-    Pi_     =   0.5 *(E.matrixV().transpose()+E.matrixU().transpose());
-    Energy_ = E.singularValues();
-    
-    C_tot = 0.25 * (E.matrixV()-E.matrixU())*(E.matrixV().transpose()-E.matrixU().transpose());
-    F_tot = 0.25 * (E.matrixV()-E.matrixU())*(E.matrixV().transpose()+E.matrixU().transpose());
-    
-    C_sub = C_tot.block(0,0,L_/2,L_/2);
-    F_sub = F_tot.block(0,0,L_/2,L_/2);
+    C_sub = C_.block(0,0,L_/2,L_/2);
+    F_sub = F_.block(0,0,L_/2,L_/2);
     
     temp=(2*C_sub - Eigen::MatrixXd::Identity(L_/2,L_/2) - 2*F_sub);
     
