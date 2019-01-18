@@ -31,6 +31,14 @@ public:
     for(int i=1;i<argc;i++){
       if(flag==argv[i]) L_=atoi(argv[i+1]);
     }
+    flag = "-n_eig";
+    for(int i=1;i<argc;i++){
+      if(flag==argv[i]) n_eig_=atoi(argv[i+1]);
+    }
+    flag = "-eig_keep";
+    for(int i=1;i<argc;i++){
+      if(flag==argv[i]) eig_keep_=atoi(argv[i+1]);
+    }
     flag = "-h";
     for(int i=1;i<argc;i++){
       if(flag==argv[i]) h_=double(atof(argv[i+1]));
