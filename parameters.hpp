@@ -11,12 +11,14 @@ public:
   int L_; 
   double h_;
   int seed_;          
-  int eigen_keep_;
+  int n_eig_;
+  int eig_keep_;
   std::string boundary_conditions_; 
 
   Parameters() {
     L_ = 8;
-    eigen_keep_=4;
+    n_eig_ = 8;
+    eig_keep_=4;
     seed_ = 16382;
     boundary_conditions_ = "open";
   }

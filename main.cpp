@@ -11,57 +11,50 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-#include "entanglement.cpp"
+#include "entanglement.hpp"
 #include <cmath>
+#include "parameters.hpp"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    
-    int L;
-    double h;
-    int sweeps;
-   
-    //string model = argv[1];
+  
+  Parameters pars;
+  pars.ReadParameters(argc,argv);
 
-    for (int i=1;i<argc;i++) {
-        if (strcmp(argv[i],"--L") == 0) {
-            L = atoi(argv[i+1]);
-            cout << "L is " << L << endl;
-        }
-        else if (strcmp(argv[i], "--h") == 0) {
-            float hF = atof(argv[i+1]);
-            h = double(hF);
-            cout << "h is " << h << endl;
-        }
-        else if (strcmp(argv[i], "--sw") == 0) {
-            sweeps = atoi(argv[i+1]);
-        }
-    }
+  Hamiltonian H(pars.L_,pars.boundary_conditions_);
+  Entanglement entanglement(pars.L_,pars.n_eig_,pars.eig_keep_);
+  std::string model = "ising";
+  H.Ising(pars.h_);
+  
+  entanglement.ComputeEntanglementSpectrum(H);
+  entanglement.Measure();
 
-    
-    Hamiltonian H(L,"Open");
-    entanglement E(L,8);
-    //string model = "Collapse_Ising";
-    string model = "randomIsing";
-    string fileName = E.build_fileName(model,h);
-    
-    ofstream fout(fileName);
-    
-    //Homogeneous
+
+
+
+    //Hamiltonian H(L,boundary_conditions);
+    //entanglement E(L,8);
+    ////string model = "Collapse_Ising";
+    //string model = "ising";
+    //string fileName = E.build_fileName(model,h);
+    //
+    //ofstream fout(fileName);
+    //
+    ////Homogeneous
     //H.build_Ising(h,1.0);
     //E.ES = E.get_ES(H);
     //E.measure(E.ES);
     //E.record(fout,h);
     
     //Random
-    MTRand random;
-    for (int k=0; k<sweeps; k++) {
-        H.build_RandomIsing(h,1.0,random);
-        E.ES = E.get_ES(H);
-        E.measure(E.ES);
-        E.record(fout,h); 
-    } 
+    //MTRand random;
+    //for (int k=0; k<sweeps; k++) {
+    //    H.build_RandomIsing(h,1.0,random);
+    //    E.ES = E.get_ES(H);
+    //    E.measure(E.ES);
+    //    E.record(fout,h); 
+    //} 
 //    
 //    Par parameter;
 //    

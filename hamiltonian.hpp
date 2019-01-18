@@ -1,5 +1,5 @@
-#ifndef HAMILTONIAN_h
-#define HAMILTONIAN_h
+#ifndef HAMILTONIAN_HPP
+#define HAMILTONIAN_HPP
 
 #include <Eigen/Dense>
 #include <cmath>
@@ -17,8 +17,8 @@ class Hamiltonian{
 
 public:
   
-  Eigen::MatrixXd A;
-  Eigen::MatrixXd B;
+  Eigen::MatrixXd A_;
+  Eigen::MatrixXd B_;
   
   Hamiltonian(int L,std::string & boundary_conditions):L_(L),
                 boundary_conditions_(boundary_conditions){
@@ -31,30 +31,30 @@ public:
   void Ising(double h){
 
     double J = 1.0;
-    A.setZero(L_,L_);
-    B.setZero(L_,L_);
+    A_.setZero(L_,L_);
+    B_.setZero(L_,L_);
     std::cout << "Magnetic field: " << h << std::endl;
     std::cout << "..building transverse field Ising model" << std::endl;
     for(int i=0;i<L_-2;i++) {
-      A(i,i) = -h;
-      A(i,i+1) = -0.5*J;
-      A(i+1,i) = A(i,i+1);
-      B(i,i+1) = -0.5*J;
-      B(i+1,i) = -B(i,i+1);
+      A_(i,i) = -h;
+      A_(i,i+1) = -0.5*J;
+      A_(i+1,i) = A_(i,i+1);
+      B_(i,i+1) = -0.5*J;
+      B_(i+1,i) = -B_(i,i+1);
     }
     
-    A(L_-1,L_-1) = -h;
-    A(L_-2,L_-2) = -h;
-    A(L_-2,L_-1) = -0.5*J;
-    A(L_-1,L_-2) = -0.5*J;
-    B(L_-2,L_-1) = -0.5*J;
-    B(L_-1,L_-2) = 0.5*J;
+    A_(L_-1,L_-1) = -h;
+    A_(L_-2,L_-2) = -h;
+    A_(L_-2,L_-1) = -0.5*J;
+    A_(L_-1,L_-2) = -0.5*J;
+    B_(L_-2,L_-1) = -0.5*J;
+    B_(L_-1,L_-2) = 0.5*J;
     
     if(boundary_conditions_ == "periodic"){//.compare("periodic") == 0) {
-      A(L_,1) = -0.5*J;
-      A(1,L_) = -0.5*J;
-      B(L_,1) = 0.5*J;
-      B(1,L_) = -0.5*J;
+      A_(L_,1) = -0.5*J;
+      A_(1,L_) = -0.5*J;
+      B_(L_,1) = 0.5*J;
+      B_(1,L_) = -0.5*J;
     }
 
 
