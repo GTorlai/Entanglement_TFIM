@@ -36,13 +36,13 @@ class Entanglement{
   Eigen::MatrixXd F_;
 
   std::vector<double> ES_;
-  double VN_;
   double SG_;
   
 public:
+  
+  double VN_;
   Entanglement(int L,int n_eig,int eig_keep):L_(L),n_eig_(n_eig),eig_keep_(eig_keep){
-    bound_ = pow(2,n_eig);
-    std::cout<<bound_<<std::endl;
+    bound_ = pow(2,n_eig_);
     ES_.assign(bound_,0.0);
   }
 
@@ -70,47 +70,54 @@ public:
 
   }
 
- 
-  void ComputeEntanglementSpectrum() {
+  void ComputeEntanglementSpectrum(int block_size) {
     
     double Norm=0;
-    double epsilon=0.000000000000001;
+    double epsilon=1e-15;//0.000000000000001;
     double dot_prod;
+    double n_eig_sim = n_eig_;
+
+    if (block_size<n_eig_){
+      n_eig_sim = block_size;
+    }
+    else {
+      n_eig_sim = n_eig_;
+    }
+    bound_ = pow(2,n_eig_sim);
+    //std::cout<<"block size = " << block_size << "  neig = "<<n_eig_sim<<std::endl;
+    ES_.assign(bound_,0.0);
     
     std::vector<double> eigen0;
-    eigen0.assign(L_/2,0.0);
+    eigen0.assign(block_size,0.0);
+    
     std::vector<double> eigen1;
-    eigen1.assign(n_eig_,0.0);
+    eigen1.assign(n_eig_sim,0.0);
+    
     std::vector<char> bin;
-    bin.assign(n_eig_,0);
+    bin.assign(n_eig_sim,0);
+    
     std::vector<double> lambda;
     lambda.assign(bound_,0.0);
  
-    Eigen::MatrixXd C_sub(L_/2,L_/2);
-    Eigen::MatrixXd F_sub(L_/2,L_/2);
-    
-    Eigen::MatrixXd temp(L_/2,L_/2);
+    Eigen::MatrixXd C_sub(block_size,block_size);
+    Eigen::MatrixXd F_sub(block_size,block_size);
+    C_sub = C_.block(0,0,block_size,block_size);
+    F_sub = F_.block(0,0,block_size,block_size);
    
-    std::vector<double> spectrum;
-    
-    C_sub = C_.block(0,0,L_/2,L_/2);
-    F_sub = F_.block(0,0,L_/2,L_/2);
-    
-    temp=(2*C_sub - Eigen::MatrixXd::Identity(L_/2,L_/2) - 2*F_sub);
+    Eigen::MatrixXd temp(block_size,block_size);
+    temp = (2*C_sub - Eigen::MatrixXd::Identity(block_size,block_size) - 2*F_sub);
     
     Eigen::JacobiSVD<Eigen::MatrixXd> eps(temp);
-    
-    for (int i=0;i<L_/2;i++) {
+    for (int i=0;i<block_size;i++) {
         eigen0[i]=eps.singularValues()(i);
         if (eigen0[i]>=1.0)
             eigen0[i]=1.0-epsilon;        
     }
 
-    std::sort(eigen0.begin(),eigen0.begin()+L_/2);
+    std::sort(eigen0.begin(),eigen0.begin()+block_size);
 
-    for (int i=0;i<n_eig_;i++) {
+    for (int i=0;i<n_eig_sim;i++) {
         eigen1[i]=2*atanhl(eigen0[i]);
- 
     }
     
     for (int i=0;i<bound_;i++) {
@@ -118,13 +125,17 @@ public:
         dot_prod=0;
         std::bitset<16> bin(i);
         
-        for(int j=0;j<n_eig_;j++) {
-            dot_prod += bin[n_eig_-1-j]*eigen1[j];
+        for(int j=0;j<n_eig_sim;j++) {
+            dot_prod += bin[n_eig_sim-1-j]*eigen1[j];
         }
         
-        lambda[i] = exp(-dot_prod);
+        lambda[i] = std::exp(-dot_prod);
+        //std::cout<<lambda[i]<<"  ";
         Norm += lambda[i];
     }
+    //std::cout<<std::endl;
+
+    std::vector<double> spectrum;
 
     for (int i=0;i<bound_;i++) {
         spectrum.push_back(lambda[i]/Norm);
@@ -139,8 +150,8 @@ public:
         VN_ += - ES_[k] * (log(ES_[k]));
     }
     SG_ = ES_[bound_-1]-ES_[bound_-2];
-    std::cout<<"vN Entropy = " << VN_ <<std::endl;
-    std::cout<<"Schmidt gap = " << SG_ << std::endl<<std::endl;
+    //std::cout<<"vN Entropy = " << VN_ <<std::endl;
+    //std::cout<<"Schmidt gap = " << SG_ << std::endl<<std::endl;
   }
 
 

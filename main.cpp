@@ -15,8 +15,6 @@
 #include <cmath>
 #include "parameters.hpp"
 
-using namespace std;
-
 int main(int argc, char *argv[]) {
   
   Parameters pars;
@@ -28,11 +26,23 @@ int main(int argc, char *argv[]) {
   H.Ising(pars.h_);
  
   entanglement.ComputeGreensFunction(H);
-  entanglement.ComputeEntanglementSpectrum();
-  entanglement.Measure();
-
-
-
+  for (int l=1;l<pars.L_;l++){
+    entanglement.ComputeEntanglementSpectrum(l);
+    entanglement.Measure();
+    std::cout<<"Entanglement entropy at bond "<< l <<" : S = " << std::setprecision(10)<<entanglement.VN_ <<std::endl;
+  }
+  //entanglement.ComputeEntanglementSpectrum(1);
+  //entanglement.Measure();
+  //std::cout<<"Entanglement entropy = " << setprecision(10)<<entanglement.VN_ <<std::endl;
+  //entanglement.ComputeEntanglementSpectrum(2);
+  //entanglement.Measure();
+  //std::cout<<"Entanglement entropy = " << setprecision(10)<<entanglement.VN_ <<std::endl;
+  //entanglement.ComputeEntanglementSpectrum(3);
+  //entanglement.Measure();
+  //std::cout<<"Entanglement entropy = " << setprecision(10)<<entanglement.VN_ <<std::endl;
+  //entanglement.ComputeEntanglementSpectrum(4);
+  //entanglement.Measure();
+  //std::cout<<"Entanglement entropy = " << setprecision(10)<<entanglement.VN_ <<std::endl;
 
     //Hamiltonian H(L,boundary_conditions);
     //entanglement E(L,8);
