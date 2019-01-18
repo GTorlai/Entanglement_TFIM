@@ -121,9 +121,9 @@ string entanglement::build_fileName(string & model, double h) {
     string name;
      
     //name = "data/Ising/L";
-    name += "data/randomIsing/L";
-    name += boost::str(boost::format("%d") % L);
-    name += "/";
+    //name += "data/randomIsing/L";
+    //name += boost::str(boost::format("%d") % L);
+    //name += "/";
     name += model;
 
     name += "_L";
